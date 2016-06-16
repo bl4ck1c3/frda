@@ -246,7 +246,15 @@ class SolrDocument
         if response.success? # we found it
           Rails.logger.info("....found #{txt_file}")
           @txt_file=txt_file # cache the filename
-          @formatted_page_text=response.body.force_encoding('UTF-8').scrub # encoding of txt files from the stacks is set to ASCII-8BIT, but is REALLY UTF-8, force it
+          text_data = response.body
+          # Check to make sure the response body encoding is UTF-8 or ASCII-8BIT as expected using https://rubygems.org/gems/rchardet
+          # If not UTF-8 or ASCII-8BIT, convert from current encoding to UTF-8 using string encode
+          if CharDet.detect(text_data)['encoding'] != 'UTF-8'
+            @formatted_page_text = text_data.encode("UTF-8", CharDet.detect(text_data)['encoding'])
+          else
+            # encoding of txt files from the stacks is set to ASCII-8BIT, but is REALLY UTF-8, force it
+            @formatted_page_text = text_data.force_encoding('UTF-8').scrub
+          end
           break # don't bother checking for more filename possibilities once we find one
         end # end check for success response code
       rescue StandardError => e
