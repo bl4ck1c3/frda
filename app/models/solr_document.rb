@@ -255,6 +255,8 @@ class SolrDocument
           if detect_encoding['encoding'].downcase != 'utf-8'
             if (detect_encoding['encoding'].downcase.include?('windows') ||
                detect_encoding['encoding'].downcase.include?('big5') ||
+               detect_encoding['encoding'].downcase.include?('8859') ||
+               detect_encoding['encoding'].downcase.include?('tis') ||
                detect_encoding['encoding'] == nil)
               @formatted_page_text = text_data.encode("UTF-8", "Windows-1252")
             else
